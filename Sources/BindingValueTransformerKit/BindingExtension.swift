@@ -46,11 +46,9 @@ public extension Binding where Value: Equatable {
     func equals(_ value: Value) -> Binding<Bool> {
         .init {
             wrappedValue == value
-        } set: { flag, transaction in
+        } set: { flag in
             guard flag else { return }
-            withTransaction(transaction) {
-                wrappedValue = value
-            }
+            wrappedValue = value
         }
     }
 }

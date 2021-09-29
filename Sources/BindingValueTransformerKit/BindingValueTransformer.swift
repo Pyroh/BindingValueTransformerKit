@@ -49,9 +49,9 @@ public extension BindingValueTransformer {
     static func makeBinding(from binding: Binding<InputType>) -> Binding<OutputType> {
         return .init {
             transform(value: binding.wrappedValue)
-        } set: { (newValue, transaction) in
+        } set: { newValue, transaction in
             let newValue = reverseTransform(value: newValue)
-            withTransaction(transaction) { binding.wrappedValue = newValue }
+            binding.wrappedValue = newValue
         }
     }
 }
