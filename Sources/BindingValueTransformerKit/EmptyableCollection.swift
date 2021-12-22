@@ -1,5 +1,5 @@
 //
-//  BindingExtension.swift
+//  EmptyableCollection.swift
 //
 //  BindingValueTransformerKit
 //
@@ -26,40 +26,20 @@
 //  SOFTWARE.
 //
 
-import SwiftUI
-import OptionalType
+import Foundation
 
-
-public extension Binding {
-    func transform<T>(using transformerKey: KeyPath<BindingValueTransformerName, T.Type>) -> Binding<T.OutputType> where T: BindingValueTransformer, T.InputType == Value {
-        T.makeBinding(from: self)
-    }
+public protocol _EmptiableCollection: Collection {
+    static var empty: Self { get }
 }
 
-public extension Binding where Value: Equatable {
-    func equal(to value: Value) -> Binding<Bool> {
-        .init {
-            wrappedValue == value
-        } set: { flag in
-            guard flag else { return }
-            wrappedValue = value
-        }
-    }
-    
-    func notEqual(to value: Value) -> Binding<Bool> {
-        .init {
-            wrappedValue != value
-        } set: { flag in
-            guard !flag else { return }
-            wrappedValue = value
-        }
-    }
+extension String: _EmptiableCollection {
+    public static var empty: String { "" }
 }
 
-extension Binding {
-    func transform<T>(using transformerType: T.Type) -> Binding<T.OutputType> where T: BindingValueTransformer, T.InputType == Value {
-        T.makeBinding(from: self)
-    }
+extension Array: _EmptiableCollection {
+    public static var empty: Array<Element> { [] }
 }
 
-
+extension Set: _EmptiableCollection {
+    public static var empty: Set<Element> { [] }
+}
