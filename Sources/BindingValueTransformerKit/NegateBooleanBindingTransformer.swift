@@ -26,7 +26,16 @@
 //  SOFTWARE.
 //
 
+import SwiftUI
+
 public enum NagateBooleanBindingTransformer: BindingValueTransformer {
     public static func transform(value: Bool) -> Bool { !value }
     public static func reverseTransform(value: Bool) -> Bool { !value }
+}
+
+public extension Binding where Value == Bool {
+    /// A `Binding<Bool>` that negates the receiver's wrapped value.
+    var negateBoolean: Binding<Bool> {
+        transform(using: NagateBooleanBindingTransformer.self)
+    }
 }

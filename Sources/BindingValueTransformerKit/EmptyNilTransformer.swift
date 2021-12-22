@@ -1,5 +1,5 @@
 //
-//  BindingExtension.swift
+//  EmptyNilTransformer.swift
 //
 //  BindingValueTransformerKit
 //
@@ -29,37 +29,24 @@
 import SwiftUI
 import OptionalType
 
+enum NilIfEmptyBindingTransformer<T: _EmptiableCollection>: BindingValueTransformer {
+    static func transform(value: T) -> T? { value.isEmpty ? nil : value }
+    static func reverseTransform(value: T?) -> T { value ?? .empty }
+}
 
-public extension Binding {
-    func transform<T>(using transformerKey: KeyPath<BindingValueTransformerName, T.Type>) -> Binding<T.OutputType> where T: BindingValueTransformer, T.InputType == Value {
-        T.makeBinding(from: self)
+enum EmptyIfNilBindingTransformer<T: OptionalType>: BindingValueTransformer where T.Wrapped: _EmptiableCollection {
+    static func transform(value: T) -> T.Wrapped { value.wrapped ?? .empty }
+    static func reverseTransform(value: T.Wrapped) -> T { value.isEmpty ? nil : .wrap(value) }
+}
+
+public extension Binding where Value: _EmptiableCollection {
+    var nilIfEmpty: Binding<Value?> {
+        transform(using: NilIfEmptyBindingTransformer.self)
     }
 }
 
-public extension Binding where Value: Equatable {
-    func equal(to value: Value) -> Binding<Bool> {
-        .init {
-            wrappedValue == value
-        } set: { flag in
-            guard flag else { return }
-            wrappedValue = value
-        }
-    }
-    
-    func notEqual(to value: Value) -> Binding<Bool> {
-        .init {
-            wrappedValue != value
-        } set: { flag in
-            guard !flag else { return }
-            wrappedValue = value
-        }
+public extension Binding where Value: OptionalType, Value.Wrapped: _EmptiableCollection {
+    var emptyIfNil: Binding<Value.Wrapped> {
+        transform(using: EmptyIfNilBindingTransformer.self)
     }
 }
-
-extension Binding {
-    func transform<T>(using transformerType: T.Type) -> Binding<T.OutputType> where T: BindingValueTransformer, T.InputType == Value {
-        T.makeBinding(from: self)
-    }
-}
-
-

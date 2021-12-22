@@ -1,5 +1,5 @@
 //
-//  BindingExtension.swift
+//  RawRepresentableBindingTransformer.swift
 //
 //  BindingValueTransformerKit
 //
@@ -25,41 +25,21 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
 //
-
 import SwiftUI
-import OptionalType
 
-
-public extension Binding {
-    func transform<T>(using transformerKey: KeyPath<BindingValueTransformerName, T.Type>) -> Binding<T.OutputType> where T: BindingValueTransformer, T.InputType == Value {
-        T.makeBinding(from: self)
-    }
-}
-
-public extension Binding where Value: Equatable {
-    func equal(to value: Value) -> Binding<Bool> {
-        .init {
-            wrappedValue == value
-        } set: { flag in
-            guard flag else { return }
-            wrappedValue = value
+enum RawRepresentableBindingTransformer<T: RawRepresentable>: BindingValueTransformer {
+    static func transform(value: T) -> T.RawValue { value.rawValue }
+    static func reverseTransform(value: T.RawValue) -> T {
+        guard let representable = T(rawValue: value) else {
+            fatalError("\(value) is not a valid raw value for \(T.self)")
         }
-    }
-    
-    func notEqual(to value: Value) -> Binding<Bool> {
-        .init {
-            wrappedValue != value
-        } set: { flag in
-            guard !flag else { return }
-            wrappedValue = value
-        }
+        
+        return representable
     }
 }
 
-extension Binding {
-    func transform<T>(using transformerType: T.Type) -> Binding<T.OutputType> where T: BindingValueTransformer, T.InputType == Value {
-        T.makeBinding(from: self)
+public extension Binding where Value: RawRepresentable {
+    var rawValue: Binding<Value.RawValue> {
+        transform(using: RawRepresentableBindingTransformer<Value>.self)
     }
 }
-
-

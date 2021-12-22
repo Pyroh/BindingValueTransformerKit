@@ -1,5 +1,5 @@
 //
-//  BindingExtension.swift
+//  ZeroNilTransformer.swift
 //
 //  BindingValueTransformerKit
 //
@@ -28,38 +28,26 @@
 
 import SwiftUI
 import OptionalType
+import ZeroableProtocol
 
-
-public extension Binding {
-    func transform<T>(using transformerKey: KeyPath<BindingValueTransformerName, T.Type>) -> Binding<T.OutputType> where T: BindingValueTransformer, T.InputType == Value {
-        T.makeBinding(from: self)
+public extension Binding where Value: Zeroable&Equatable {
+    var nilIfZero: Binding<Value?> {
+        transform(using: NilIfZeroBindingTransformer.self)
     }
 }
 
-public extension Binding where Value: Equatable {
-    func equal(to value: Value) -> Binding<Bool> {
-        .init {
-            wrappedValue == value
-        } set: { flag in
-            guard flag else { return }
-            wrappedValue = value
-        }
-    }
-    
-    func notEqual(to value: Value) -> Binding<Bool> {
-        .init {
-            wrappedValue != value
-        } set: { flag in
-            guard !flag else { return }
-            wrappedValue = value
-        }
+public extension Binding where Value: OptionalType, Value.Wrapped: Zeroable&Equatable {
+    var zeroIfNil: Binding<Value.Wrapped> {
+        transform(using: ZeroIfNilBindingTransformer.self)
     }
 }
 
-extension Binding {
-    func transform<T>(using transformerType: T.Type) -> Binding<T.OutputType> where T: BindingValueTransformer, T.InputType == Value {
-        T.makeBinding(from: self)
-    }
+enum NilIfZeroBindingTransformer<T: Zeroable&Equatable>: BindingValueTransformer {
+    static func transform(value: T) -> T? { value.isZero ? nil : value }
+    static func reverseTransform(value: T?) -> T { value ?? .zero }
 }
 
-
+enum ZeroIfNilBindingTransformer<T: OptionalType>: BindingValueTransformer where T.Wrapped: Zeroable&Equatable {
+    static func transform(value: T) -> T.Wrapped { value.wrapped ?? .zero }
+    static func reverseTransform(value: T.Wrapped) -> T { value.isZero ? nil : .wrap(value) }
+}

@@ -28,28 +28,19 @@
 
 import SwiftUI
 
-public protocol BindingValueProducer {
-    associatedtype InputType
-    associatedtype OutputType
-    
-    static func produce(from value: InputType) -> OutputType
-}
-
 public protocol BindingValueTransformer {
     associatedtype InputType
     associatedtype OutputType
     
     static func transform(value: InputType) -> OutputType
     static func reverseTransform(value: OutputType) -> InputType
-    
-    static func makeBinding(from binding: Binding<InputType>) -> Binding<OutputType>
 }
 
-public extension BindingValueTransformer {
+extension BindingValueTransformer {
     static func makeBinding(from binding: Binding<InputType>) -> Binding<OutputType> {
         return .init {
             transform(value: binding.wrappedValue)
-        } set: { newValue, transaction in
+        } set: { newValue in
             let newValue = reverseTransform(value: newValue)
             binding.wrappedValue = newValue
         }
