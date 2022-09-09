@@ -31,13 +31,17 @@ import OptionalType
 
 
 public extension Binding {
-    func transform<T>(using transformerKey: KeyPath<BindingValueTransformerName, T.Type>) -> Binding<T.OutputType> where T: BindingValueTransformer, T.InputType == Value {
+    @inlinable func transform<T>(using transformerKey: KeyPath<BindingValueTransformerName, T.Type>) -> Binding<T.OutputType> where T: BindingValueTransformer, T.InputType == Value {
+        T.makeBinding(from: self)
+    }
+    
+    @inlinable func transform<T>(using transformerType: T.Type) -> Binding<T.OutputType> where T: BindingValueTransformer, T.InputType == Value {
         T.makeBinding(from: self)
     }
 }
 
 public extension Binding where Value: Equatable {
-    func equal(to value: Value) -> Binding<Bool> {
+    @inlinable func equal(to value: Value) -> Binding<Bool> {
         .init {
             wrappedValue == value
         } set: { flag in
@@ -46,19 +50,13 @@ public extension Binding where Value: Equatable {
         }
     }
     
-    func notEqual(to value: Value) -> Binding<Bool> {
+    @inlinable func notEqual(to value: Value) -> Binding<Bool> {
         .init {
             wrappedValue != value
         } set: { flag in
             guard !flag else { return }
             wrappedValue = value
         }
-    }
-}
-
-extension Binding {
-    func transform<T>(using transformerType: T.Type) -> Binding<T.OutputType> where T: BindingValueTransformer, T.InputType == Value {
-        T.makeBinding(from: self)
     }
 }
 

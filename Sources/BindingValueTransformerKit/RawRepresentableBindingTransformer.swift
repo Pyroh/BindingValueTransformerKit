@@ -27,9 +27,10 @@
 //
 import SwiftUI
 
+@usableFromInline
 enum RawRepresentableBindingTransformer<T: RawRepresentable>: BindingValueTransformer {
-    static func transform(value: T) -> T.RawValue { value.rawValue }
-    static func reverseTransform(value: T.RawValue) -> T {
+    @usableFromInline static func transform(value: T) -> T.RawValue { value.rawValue }
+    @usableFromInline static func reverseTransform(value: T.RawValue) -> T {
         guard let representable = T(rawValue: value) else {
             fatalError("\(value) is not a valid raw value for \(T.self)")
         }
@@ -39,7 +40,7 @@ enum RawRepresentableBindingTransformer<T: RawRepresentable>: BindingValueTransf
 }
 
 public extension Binding where Value: RawRepresentable {
-    var rawValue: Binding<Value.RawValue> {
+    @inlinable var rawValue: Binding<Value.RawValue> {
         transform(using: RawRepresentableBindingTransformer<Value>.self)
     }
 }

@@ -37,7 +37,7 @@ public protocol BindingValueTransformer {
 }
 
 extension BindingValueTransformer {
-    static func makeBinding(from binding: Binding<InputType>) -> Binding<OutputType> {
+    @usableFromInline static func makeBinding(from binding: Binding<InputType>) -> Binding<OutputType> {
         return .init {
             transform(value: binding.wrappedValue)
         } set: { newValue in

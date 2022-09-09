@@ -35,7 +35,7 @@ public enum NagateBooleanBindingTransformer: BindingValueTransformer {
 
 public extension Binding where Value == Bool {
     /// A `Binding<Bool>` that negates the receiver's wrapped value.
-    var negateBoolean: Binding<Bool> {
+    @inlinable var negateBoolean: Binding<Bool> {
         transform(using: NagateBooleanBindingTransformer.self)
     }
 }

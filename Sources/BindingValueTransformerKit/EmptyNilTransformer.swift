@@ -29,24 +29,26 @@
 import SwiftUI
 import OptionalType
 
+@usableFromInline
 enum NilIfEmptyBindingTransformer<T: _EmptiableCollection>: BindingValueTransformer {
-    static func transform(value: T) -> T? { value.isEmpty ? nil : value }
-    static func reverseTransform(value: T?) -> T { value ?? .empty }
+    @usableFromInline static func transform(value: T) -> T? { value.isEmpty ? nil : value }
+    @usableFromInline static func reverseTransform(value: T?) -> T { value ?? .empty }
 }
 
+@usableFromInline
 enum EmptyIfNilBindingTransformer<T: OptionalType>: BindingValueTransformer where T.Wrapped: _EmptiableCollection {
-    static func transform(value: T) -> T.Wrapped { value.wrapped ?? .empty }
-    static func reverseTransform(value: T.Wrapped) -> T { value.isEmpty ? nil : .wrap(value) }
+    @usableFromInline static func transform(value: T) -> T.Wrapped { value.wrapped ?? .empty }
+    @usableFromInline static func reverseTransform(value: T.Wrapped) -> T { value.isEmpty ? nil : .wrap(value) }
 }
 
 public extension Binding where Value: _EmptiableCollection {
-    var nilIfEmpty: Binding<Value?> {
+    @inlinable var nilIfEmpty: Binding<Value?> {
         transform(using: NilIfEmptyBindingTransformer.self)
     }
 }
 
 public extension Binding where Value: OptionalType, Value.Wrapped: _EmptiableCollection {
-    var emptyIfNil: Binding<Value.Wrapped> {
+    @inlinable var emptyIfNil: Binding<Value.Wrapped> {
         transform(using: EmptyIfNilBindingTransformer.self)
     }
 }

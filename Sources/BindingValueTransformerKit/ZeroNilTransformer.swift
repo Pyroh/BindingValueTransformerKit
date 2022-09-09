@@ -31,23 +31,25 @@ import OptionalType
 import ZeroableProtocol
 
 public extension Binding where Value: Zeroable&Equatable {
-    var nilIfZero: Binding<Value?> {
+    @inlinable var nilIfZero: Binding<Value?> {
         transform(using: NilIfZeroBindingTransformer.self)
     }
 }
 
 public extension Binding where Value: OptionalType, Value.Wrapped: Zeroable&Equatable {
-    var zeroIfNil: Binding<Value.Wrapped> {
+    @inlinable var zeroIfNil: Binding<Value.Wrapped> {
         transform(using: ZeroIfNilBindingTransformer.self)
     }
 }
 
+@usableFromInline
 enum NilIfZeroBindingTransformer<T: Zeroable&Equatable>: BindingValueTransformer {
-    static func transform(value: T) -> T? { value.isZero ? nil : value }
-    static func reverseTransform(value: T?) -> T { value ?? .zero }
+    @usableFromInline static func transform(value: T) -> T? { value.isZero ? nil : value }
+    @usableFromInline static func reverseTransform(value: T?) -> T { value ?? .zero }
 }
 
+@usableFromInline
 enum ZeroIfNilBindingTransformer<T: OptionalType>: BindingValueTransformer where T.Wrapped: Zeroable&Equatable {
-    static func transform(value: T) -> T.Wrapped { value.wrapped ?? .zero }
-    static func reverseTransform(value: T.Wrapped) -> T { value.isZero ? nil : .wrap(value) }
+    @usableFromInline static func transform(value: T) -> T.Wrapped { value.wrapped ?? .zero }
+    @usableFromInline static func reverseTransform(value: T.Wrapped) -> T { value.isZero ? nil : .wrap(value) }
 }
