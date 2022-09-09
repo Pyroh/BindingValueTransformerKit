@@ -1,3 +1,3 @@
 # BindingValueTransformerKit
 
-A description of this package.
+Remember `NSValueTransformer` ?

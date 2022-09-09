@@ -5,7 +5,7 @@
 //
 //  MIT License
 //
-//  Copyright (c) 2020 Pierre Tacchi
+//  Copyright (c) 2020-2022 Pierre Tacchi
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -28,9 +28,10 @@
 
 import SwiftUI
 
-public enum NagateBooleanBindingTransformer: BindingValueTransformer {
-    public static func transform(value: Bool) -> Bool { !value }
-    public static func reverseTransform(value: Bool) -> Bool { !value }
+@usableFromInline
+enum NagateBooleanBindingTransformer: BindingValueTransformer {
+    @usableFromInline static func transform(value: Bool) -> Bool { !value }
+    @usableFromInline static func reverseTransform(value: Bool) -> Bool { !value }
 }
 
 public extension Binding where Value == Bool {
