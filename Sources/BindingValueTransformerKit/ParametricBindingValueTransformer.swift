@@ -1,11 +1,11 @@
 //
-//  BindingValueTransformer.swift
+//  ParametricBindingValueTransformer.swift
 //
 //  BindingValueTransformerKit
 //
 //  MIT License
 //
-//  Copyright (c) 2021-2022 Pierre Tacchi
+//  Copyright (c) 2023 Pierre Tacchi
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -28,20 +28,21 @@
 
 import SwiftUI
 
-public protocol BindingValueTransformer {
+public protocol ParametricBindingValueTransformer {
     associatedtype InputType
     associatedtype OutputType
+    associatedtype Parameters
     
-    static func transform(value: InputType) -> OutputType
-    static func reverseTransform(value: OutputType) -> InputType
+    static func transform(value: InputType, parameters: Parameters) -> OutputType
+    static func reverseTransform(value: OutputType, parameters: Parameters) -> InputType
 }
 
-extension BindingValueTransformer {
-    @usableFromInline static func makeBinding(from binding: Binding<InputType>) -> Binding<OutputType> {
+extension ParametricBindingValueTransformer {
+    @usableFromInline static func makeBinding(from binding: Binding<InputType>, with parameters: Parameters) -> Binding<OutputType> {
         .init {
-            transform(value: binding.wrappedValue)
+            transform(value: binding.wrappedValue, parameters: parameters)
         } set: { newValue in
-            let newValue = reverseTransform(value: newValue)
+            let newValue = reverseTransform(value: newValue, parameters: parameters)
             binding.wrappedValue = newValue
         }
     }

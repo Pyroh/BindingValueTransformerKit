@@ -36,6 +36,12 @@ public extension Binding {
     }
 }
 
+public extension Binding {
+    @inlinable func transform<T, P>(using transformerType: T.Type, with parameters: P) -> Binding<T.OutputType> where T: ParametricBindingValueTransformer, T.InputType == Value, T.Parameters == P {
+        T.makeBinding(from: self, with: parameters)
+    }
+}
+
 public extension Binding where Value: Equatable {
     @inlinable func equal(to value: Value) -> Binding<Bool> {
         .init {
@@ -56,4 +62,12 @@ public extension Binding where Value: Equatable {
     }
 }
 
-
+public extension Binding where Value: Comparable {
+    @inlinable func clamped(to range: ClosedRange<Value>) -> Self {
+        .init {
+            Swift.min(Swift.max(wrappedValue, range.lowerBound), range.upperBound)
+        } set: { newValue in
+            wrappedValue = Swift.min(Swift.max(newValue, range.lowerBound), range.upperBound)
+        }
+    }
+}
